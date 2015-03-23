@@ -1,0 +1,21 @@
+# Packages #
+############
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# Extra Crap #
+##############
+*.py[cod]
+*.cfg
+*.pid
+*~
+
+# Folders To Ignore #
+#####################
+__pycache__/
+dl/
