@@ -45,12 +45,20 @@ Basic_String = binascii.unhexlify('4261736963')
 def logprint(x):
 	now = datetime.now()
 	t = now.strftime("%Y-%m-%d %H:%M:%S.%f") + " "
+	f = open('log/honeywrt.log','a')
+	f.write('%s%s\n' % (t, x))
+	print(t + x)
+	f.close
+
+def stdoutprint(x):
+	now = datetime.now()
+	t = now.strftime("%Y-%m-%d %H:%M:%S.%f") + " "
 	print(t + x)
 
-def logprint2(x):
+def logerror(x):
 	now = datetime.now()
-	t = now.strftime("\n%Y-%m-%d %H:%M:%S.%f") + " "
-	print(t + x)
+	t = now.strftime("%Y-%m-%d %H:%M:%S.%f") + " "
+	log.err(t + x)
 
 def twitter_it(x, ip):
 	#remove the "return" line and get OAUTH values from Twitter (http://dev.twitter.com) if you want to have this tweet
@@ -205,7 +213,13 @@ class uDUMP(DatagramProtocol):
 random.seed()
 #sys.stdout = flushfile(sys.stdout)
 
-logprint("[INFO] Checking Ports...")
+if os.path.isfile('log/honeywrt.log'):
+	stdoutprint("[WARN] Logfile Exists, Appending To Log")
+else:
+	f = open('log/honeywrt.log','w')
+	stdoutprint("[INFO] Logfile Created: log/honeywrt.log")
+
+stdoutprint("[INFO] Checking Ports...")
 
 import ConfigParser
 
@@ -217,7 +231,7 @@ else:
 
 ### TCP SECTION
 
-logprint("[INFO] Checking TCP...")
+stdoutprint("[INFO] Checking TCP...")
 
 for section in cfg.sections():
 	if section == ('honeypot_tcp_ports'):
@@ -226,7 +240,7 @@ for section in cfg.sections():
 				port = cfg.get(section, option)
 				
 				module = '%s' % (port,)
-#				logprint("Init Port: %s" % (port))
+#				stdoutprint("Init Port: %s" % (port))
 				
 				file = 'honeywrt/core/services/tcp/%s.py' % (port)
 				
@@ -234,7 +248,7 @@ for section in cfg.sections():
 					with open(file, 'r') as filename:
 						execfile(file)
 #						f = protocol.Factory()
-#						logprint("Factory TCP: %s" % (f))
+#						stdoutprint("Factory TCP: %s" % (f))
 						
 						try:
 							c = ('%s.tcp%s' % (__name__, port))
@@ -242,13 +256,13 @@ for section in cfg.sections():
 							print 'Import Error'
 						
 #						f.protocol = c
-#						logprint("Factory Protocol: %s" % (f.protocol))
+#						stdoutprint("Factory Protocol: %s" % (f.protocol))
 						
 						s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 						result = s.connect_ex(('0.0.0.0', int(cfg.get(section,option))))
 						
 						if result == 0:
-							logprint("[CRIT] TCP Port %s - Socket In Use... SKIPPING" % (port))
+							stdoutprint("[CRIT] TCP Port %s - Socket In Use... SKIPPING" % (port))
 						s.close
 						
 						if result == 111:
@@ -259,7 +273,7 @@ for section in cfg.sections():
 							)
 				
 				else:
-					logprint("[WARN] TCP Port %s - Starting Listener (Default Settings)" % (port))
+					stdoutprint("[WARN] TCP Port %s - Starting Listener (Default Settings)" % (port))
 					f = Factory()
 					f.protocol = tDUMP
 					reactor.listenTCP(
@@ -270,7 +284,7 @@ for section in cfg.sections():
 
 ### UDP SECTION
 
-logprint("[INFO] Checking UDP...")
+stdoutprint("[INFO] Checking UDP...")
 
 for section in cfg.sections():
 	if section == ('honeypot_udp_ports'):
@@ -279,7 +293,7 @@ for section in cfg.sections():
 				port = cfg.get(section, option)
 				
 				module = '%s' % (port,)
-#				logprint("Init Port: %s" % (port))
+#				stdoutprint("Init Port: %s" % (port))
 				
 				file = 'honeywrt/core/services/udp/%s.py' % (port)
 				
@@ -287,7 +301,7 @@ for section in cfg.sections():
 					with open(file, 'r') as filename:
 						execfile(file)
 #						f = protocol.Factory()
-#						logprint("Factory TCP: %s" % (f))
+#						stdoutprint("Factory TCP: %s" % (f))
 						
 						try:
 							c = ('%s.tcp%s' % (__name__, port))
@@ -295,7 +309,7 @@ for section in cfg.sections():
 							print 'Import Error'
 						
 #						f.protocol = c
-#						logprint("Factory Protocol: %s" % (f.protocol))
+#						stdoutprint("Factory Protocol: %s" % (f.protocol))
 #						
 #						reactor.listenTCP(
 #							int(cfg.get(section,option)),
@@ -303,7 +317,7 @@ for section in cfg.sections():
 #							interface = interface
 #						)
 #				else:
-#					logprint("Dumping Raw TCP %s" % (strport))
+#					stdoutprint("Dumping Raw TCP %s" % (strport))
 #					f = Factory()
 #					f.protocol = tDUMP
 #					reactor.listenTCP(
@@ -313,47 +327,45 @@ for section in cfg.sections():
 #					)
 
 if cfg.has_option('honeypot', 'tcpdump_enabled'):
-	logprint("[INFO] TCPDUMP Is Enabled...")
+	stdoutprint("[INFO] TCPDUMP Is Enabled...")
 	if cfg.has_option('honeypot', 'tcpdump_iface'):
 		tcpdump_iface = cfg.get('honeypot', 'tcpdump_iface')
-		logprint("[INFO] Listen Interface Set To %s" % (tcpdump_iface))
+		stdoutprint("[INFO] Listen Interface Set To %s" % (tcpdump_iface))
 		if cfg.has_option('honeypot', 'tcpdump_pcap_folder'):
 			tcpdump_pcap = cfg.get('honeypot', 'tcpdump_pcap_folder')
 			tcpdump_pcap = ('%s/%s.pcap' % (tcpdump_pcap, time.strftime("%m%d%Y%H%M%S")))
-			logprint("[INFO] Using PCAP File: %s" % (tcpdump_pcap))
+			stdoutprint("[INFO] Using PCAP File: %s" % (tcpdump_pcap))
 		else:
 			tcpdump_pcap = '/tmp/honeypot.pcap'
-			logprint("[INFO] Using PCAP File: %s" % (tcpdump_pcap))
+			stdoutprint("[INFO] Using PCAP File: %s" % (tcpdump_pcap))
 		if interface != '0.0.0.0':
-			logprint("[INFO] Starting TCPDUMP on %s..." % (tcpdump_iface))
+			stdoutprint("[INFO] Starting TCPDUMP on %s..." % (tcpdump_iface))
 			os.system("tcpdump -s0 -U -i %s -w %s '(host %s) and (tcp or udp)' 1>/dev/null 2>/dev/null &" % (tcpdump_iface, tcpdump_pcap, interface))
 			tcpdump = 'running'
 		else:
-			logprint("[WARN] Listen Address Is 0.0.0.0 Capturing All Data!!")
+			stdoutprint("[WARN] Listen Address Is 0.0.0.0 Capturing All Data!!")
 			os.system("tcpdump -s0 -U -i %s -w %s '(tcp or udp)' 1>/dev/null 2>/dev/null &" % (tcpdump_iface, tcpdump_pcap))
 			tcpdump = 'running'
 else:
-	logprint("[INFO] TCPDUMP Is Disabled...")
+	stdoutprint("[INFO] TCPDUMP Is Disabled...")
 
 if tcpdump == 'running':
 	if cfg.has_option('honeypot', 'wireshark_enabled'):
-		logprint("[INFO] Opening Wireshark...")
+		stdoutprint("[INFO] Opening Wireshark...")
 		os.system("sleep 3")
 		os.system("tail -f %s 2>/dev/null | wireshark -k -i - 1>/dev/null 2>/dev/null &" % (tcpdump_pcap))
 	else:
-		logprint("[INFO] Wireshark Disabled")
+		stdoutprint("[INFO] Wireshark Disabled")
 else:
-	logprint("")
+	stdoutprint("")
 
 
-logprint("[INFO] Starting reactor...")
+stdoutprint("[INFO] Starting reactor...")
 
 reactor.run()
 
-logprint2("[INFO] Cleaning up...")
+#stdoutprint("[INFO] Stopping reactor...")
 os.system("killall tcpdump 2>/dev/null")
-logprint("[INFO] Removing *.pyc Crap...")
 os.system("find . -name *.pyc -type f -exec rm -rf {} \;")
 
-logprint("[INFO] Shutting down...")
 quit()
