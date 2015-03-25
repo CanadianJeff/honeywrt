@@ -1,3 +1,9 @@
+enctype = ['ENCRYPT_OFF', 'ENCRYPT_ON', 'ENCRYPT_NOT_SUP', 'ENCRYPT_REQ']
+marstype = ['ON', 'OFF']
+logindata = ['ClientName', 'Username', 'Password', 'AppName', 'Server Name', 'Unused', 'Library Name', 'Locale', 'Database Name']
+tds_response_a = '0401002500000100000015000601001b000102001c000103001d0000ff'
+lastMSSQL = ''
+
 class tcp1433(Protocol):
 	def connectionMade(self):
 		logprint("[honeypot.HoneyPotFactory] New connection: %s:%s (%s:%s) [Session: %d]" % \
@@ -38,21 +44,21 @@ class tcp1433(Protocol):
 				self.transport.write(binascii.unhexlify(tds_response))
 			elif(tds_type == 0x10):
 				p2 = p1 + 36
-				logprint("[HoneyPotTransport,%s,%s] Login packet: (TDS 7/8)" % (self.transport.sessionno, self.transport.getPeer().host))
+#				logprint("[HoneyPotTransport,%s,%s] Login packet: (TDS 7/8)" % (self.transport.sessionno, self.transport.getPeer().host))
 				if len(data) > p2:
 					l, v, ps, cv, pid, cid, o1, o2, o3, r, tz, lc = struct.unpack('=LLLLLLBBBBLL', data[p1:p2])
-					logprint("[HoneyPotTransport,%s,%s] Len: %s " % (self.transport.sessionno, self.transport.getPeer().host, l))
-					logprint("[HoneyPotTransport,%s,%s] Version: %s " % (self.transport.sessionno, self.transport.getPeer().host, hex(socket.ntohl(v))))
-					logprint("[HoneyPotTransport,%s,%s] Packet Size: %s " % (self.transport.sessionno, self.transport.getPeer().host, ps))
-					logprint("[HoneyPotTransport,%s,%s] Client Version: %s " % (self.transport.sessionno, self.transport.getPeer().host, socket.ntohl(cv)))
-					logprint("[HoneyPotTransport,%s,%s] Client PID: %s " % (self.transport.sessionno, self.transport.getPeer().host, pid))
-					logprint("[HoneyPotTransport,%s,%s] Connection ID: %s " % (self.transport.sessionno, self.transport.getPeer().host, cid))
-					logprint("[HoneyPotTransport,%s,%s] Option Flag 1: %s " % (self.transport.sessionno, self.transport.getPeer().host, o1))
-					logprint("[HoneyPotTransport,%s,%s] Option Flag 2: %s " % (self.transport.sessionno, self.transport.getPeer().host, o2))
-					logprint("[HoneyPotTransport,%s,%s] Option Flag 3: %s " % (self.transport.sessionno, self.transport.getPeer().host, o3))
-					logprint("[HoneyPotTransport,%s,%s] Type Flag: %s " % (self.transport.sessionno, self.transport.getPeer().host, r))
-					logprint("[HoneyPotTransport,%s,%s] Client TZ: %s " % (self.transport.sessionno, self.transport.getPeer().host, tz))
-					logprint("[HoneyPotTransport,%s,%s] Client Language Code: %s " % (self.transport.sessionno, self.transport.getPeer().host, lc))
+#					logprint("[HoneyPotTransport,%s,%s] Len: %s " % (self.transport.sessionno, self.transport.getPeer().host, l))
+#					logprint("[HoneyPotTransport,%s,%s] Version: %s " % (self.transport.sessionno, self.transport.getPeer().host, hex(socket.ntohl(v))))
+#					logprint("[HoneyPotTransport,%s,%s] Packet Size: %s " % (self.transport.sessionno, self.transport.getPeer().host, ps))
+#					logprint("[HoneyPotTransport,%s,%s] Client Version: %s " % (self.transport.sessionno, self.transport.getPeer().host, socket.ntohl(cv)))
+#					logprint("[HoneyPotTransport,%s,%s] Client PID: %s " % (self.transport.sessionno, self.transport.getPeer().host, pid))
+#					logprint("[HoneyPotTransport,%s,%s] Connection ID: %s " % (self.transport.sessionno, self.transport.getPeer().host, cid))
+#					logprint("[HoneyPotTransport,%s,%s] Option Flag 1: %s " % (self.transport.sessionno, self.transport.getPeer().host, o1))
+#					logprint("[HoneyPotTransport,%s,%s] Option Flag 2: %s " % (self.transport.sessionno, self.transport.getPeer().host, o2))
+#					logprint("[HoneyPotTransport,%s,%s] Option Flag 3: %s " % (self.transport.sessionno, self.transport.getPeer().host, o3))
+#					logprint("[HoneyPotTransport,%s,%s] Type Flag: %s " % (self.transport.sessionno, self.transport.getPeer().host, r))
+#					logprint("[HoneyPotTransport,%s,%s] Client TZ: %s " % (self.transport.sessionno, self.transport.getPeer().host, tz))
+#					logprint("[HoneyPotTransport,%s,%s] Client Language Code: %s " % (self.transport.sessionno, self.transport.getPeer().host, lc))
 					p1 = p2
 					p2 = p1 + 4
 					for n in logindata:
@@ -65,13 +71,13 @@ class tcp1433(Protocol):
 									b = ord(byte) ^ 0xa5
 									reverse_b = (b & 0xf) << 4 | (b & 0xf0) >> 4
 									pw = pw + chr(reverse_b)
-#								print '\t%s: %s' % (n, pw.encode("utf-8"))
+								print '\t%s: %s' % (n, pw.encode("utf-8"))
 							else:
 								s = data[o + 8:o + (2 * l) + 8]
 								logprint("[HoneyPotTransport,%s,%s] %s: %s" % (self.transport.sessionno, self.transport.getPeer().host, n, s.encode("utf-8")))
 						p1 = p2
 						p2 = p1 + 4
-					logprint("[HoneyPotTransport,%s,%s] Client ID: %s " % (self.transport.sessionno, self.transport.getPeer().host, binascii.hexlify(data[p1:p1+6])))
+#					logprint("[HoneyPotTransport,%s,%s] Client ID: %s " % (self.transport.sessionno, self.transport.getPeer().host, binascii.hexlify(data[p1:p1+6])))
 					self.transport.loseConnection()
 					if(lastMSSQL != self.transport.getPeer().host):
 						lastMSSQL = self.transport.getPeer().host

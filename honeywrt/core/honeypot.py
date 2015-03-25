@@ -41,20 +41,6 @@ myid = ''
 
 Auth_String = binascii.unhexlify('417574686f72697a6174696f6e')
 Basic_String = binascii.unhexlify('4261736963')
-RAdmindInit = binascii.unhexlify('01000000010000000808')
-RAdmindIHasPW = binascii.unhexlify('01000000010000001B1B')
-enctype = ['ENCRYPT_OFF', 'ENCRYPT_ON', 'ENCRYPT_NOT_SUP', 'ENCRYPT_REQ']
-marstype = ['ON', 'OFF']
-logindata = ['ClientName', 'Username', 'Password', 'AppName', 'Server Name', 'Unused', 'Library Name', 'Locale', 'Database Name']
-tds_response_a = '0401002500000100000015000601001b000102001c000103001d0000ff'
-
-lastSQLSlammer = ''
-lastMSSQL = ''
-lastTS = ''
-lastSIPPER = ''
-lastRAdmind = ''
-lastVNC = ''
-lastTELNET = ''
 
 def logprint(x):
 	now = datetime.now()

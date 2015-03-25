@@ -1,3 +1,5 @@
+lastSIPPER = ''
+
 class udp5060(DatagramProtocol):
 	def datagramReceived(self, data, (host, port)):
 		global lastSIPPER

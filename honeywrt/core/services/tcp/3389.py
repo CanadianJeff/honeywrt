@@ -1,3 +1,5 @@
+lastTS = ''
+
 class tcp3389(Protocol):
 	def connectionMade(self):
 		logprint("[honeypot.HoneyPotFactory] New connection: %s:%s (%s:%s) [Session: %d]" % \

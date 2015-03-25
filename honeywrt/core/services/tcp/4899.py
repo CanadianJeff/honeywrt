@@ -1,3 +1,8 @@
+RAdmindInit = binascii.unhexlify('01000000010000000808')
+RAdmindIHasPW = binascii.unhexlify('01000000010000001B1B')
+
+lastRAdmind = ''
+
 class tcp4899(Protocol):
 	def connectionMade(self):
 		logprint("[honeypot.HoneyPotFactory] New connection: %s:%s (%s:%s) [Session: %d]" % \

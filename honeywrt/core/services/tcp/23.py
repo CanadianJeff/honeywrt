@@ -1,5 +1,6 @@
 from twisted.conch.telnet import TelnetTransport, TelnetProtocol
 from twisted.conch import telnet
+lastTELNET = ''
 
 telnet_protocol_version = binascii.unhexlify('fffb01fffb03fffd18fffd1f') # Cisco router telnetd
 #telnet_protocol_version = binascii.unhexlify('fffe1ffffe20fffe18fffe27fffc01fffe03fffc03') #

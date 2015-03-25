@@ -6,6 +6,7 @@ vnc_version_007 = binascii.unhexlify("524642203030332e3030370a") # RFB 003.007
 vnc_version_008 = binascii.unhexlify("524642203030332e3030380a") # RFB 003.008
 vnc_server_version = (vnc_version_008)
 vnc_auth_challenge = binascii.unhexlify('00112233445566778899AABBCCDDEEFF')
+lastVNC = ''
 
 class tcp5900(Protocol):
 	def connectionMade(self):
