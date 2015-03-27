@@ -13,6 +13,7 @@
 *.py[cod]
 *.cfg
 *.pid
+*.txt
 *~
 
 # Folders To Ignore #
