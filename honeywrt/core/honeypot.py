@@ -328,37 +328,42 @@ for section in cfg.sections():
 
 if cfg.has_option('honeypot', 'tcpdump_enabled'):
 	stdoutprint("[INFO] TCPDUMP Is Enabled...")
-	if cfg.has_option('honeypot', 'tcpdump_iface'):
-		tcpdump_iface = cfg.get('honeypot', 'tcpdump_iface')
-		stdoutprint("[INFO] Listen Interface Set To %s" % (tcpdump_iface))
-		if cfg.has_option('honeypot', 'tcpdump_pcap_folder'):
-			tcpdump_pcap = cfg.get('honeypot', 'tcpdump_pcap_folder')
-			tcpdump_pcap = ('%s/%s.pcap' % (tcpdump_pcap, time.strftime("%m%d%Y%H%M%S")))
-			stdoutprint("[INFO] Using PCAP File: %s" % (tcpdump_pcap))
-		else:
-			tcpdump_pcap = '/tmp/honeypot.pcap'
-			stdoutprint("[INFO] Using PCAP File: %s" % (tcpdump_pcap))
-		if interface != '0.0.0.0':
-			stdoutprint("[INFO] Starting TCPDUMP on %s..." % (tcpdump_iface))
-			os.system("tcpdump -s0 -U -i %s -w %s '(host %s) and (tcp or udp)' 1>/dev/null 2>/dev/null &" % (tcpdump_iface, tcpdump_pcap, interface))
-			tcpdump = 'running'
-		else:
-			stdoutprint("[WARN] Listen Address Is 0.0.0.0 Capturing All Data!!")
-			os.system("tcpdump -s0 -U -i %s -w %s '(tcp or udp)' 1>/dev/null 2>/dev/null &" % (tcpdump_iface, tcpdump_pcap))
-			tcpdump = 'running'
+	# check if user has tcpdump installed
+	tcpdump_bin = os.popen("which %s" % "tcpdump").read().strip()
+	if tcpdump_bin != '':
+		stdoutprint("[INFO] Found TCPDUMP: %s" % (tcpdump_bin))
+		tcpdump_detected = 'true'
+		if cfg.has_option('honeypot', 'tcpdump_iface'):
+			tcpdump_iface = cfg.get('honeypot', 'tcpdump_iface')
+			stdoutprint("[INFO] Listen Interface Set To %s" % (tcpdump_iface))
+			if cfg.has_option('honeypot', 'tcpdump_pcap_folder'):
+				tcpdump_pcap = cfg.get('honeypot', 'tcpdump_pcap_folder')
+				tcpdump_pcap = ('%s/%s.pcap' % (tcpdump_pcap, time.strftime("%m%d%Y%H%M%S")))
+				stdoutprint("[INFO] Using PCAP File: %s" % (tcpdump_pcap))
+			else:
+				tcpdump_pcap = '/tmp/honeypot.pcap'
+				stdoutprint("[INFO] Using PCAP File: %s" % (tcpdump_pcap))
+			if interface != '0.0.0.0':
+				stdoutprint("[INFO] Starting TCPDUMP on %s..." % (tcpdump_iface))
+				os.system("%s -s0 -U -i %s -w %s '(host %s) and (tcp or udp)' 1>/dev/null 2>/dev/null &" % (tcpdump_bin, tcpdump_iface, tcpdump_pcap, interface))
+				tcpdump = 'running'
+			else:
+				stdoutprint("[WARN] Listen Address Is 0.0.0.0 Capturing All Data!!")
+				os.system("%s -s0 -U -i %s -w %s '(tcp or udp)' 1>/dev/null 2>/dev/null &" % (tcpdump_bin, tcpdump_iface, tcpdump_pcap))
+				tcpdump = 'running'
+	else:
+		stdoutprint("[ERR ] Could Not Detect TCPDUMP (sadface.jpg)")
+		tcpdump_detected = 'false'
 else:
 	stdoutprint("[INFO] TCPDUMP Is Disabled...")
 
-if tcpdump == 'running':
+if tcpdump_detected == 'true':
 	if cfg.has_option('honeypot', 'wireshark_enabled'):
 		stdoutprint("[INFO] Opening Wireshark...")
 		os.system("sleep 3")
 		os.system("tail -f %s 2>/dev/null | wireshark -k -i - 1>/dev/null 2>/dev/null &" % (tcpdump_pcap))
 	else:
 		stdoutprint("[INFO] Wireshark Disabled")
-else:
-	stdoutprint("")
-
 
 stdoutprint("[INFO] Starting reactor...")
 
