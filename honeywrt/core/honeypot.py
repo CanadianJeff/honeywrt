@@ -16,9 +16,10 @@
 #  
 
 import twisted
+from twisted import version
 from twisted.conch.insults import insults
 #from twisted.application import service, internet
-from twisted.internet import reactor, protocol, defer
+from twisted.internet import reactor, protocol, defer, endpoints
 from twisted.python import log
 from zope.interface import implements
 import sys, os, random, time, socket, thread, binascii, struct, unicodedata
