@@ -1,8 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-PIDFILE=honeywrt.pid
-
-cd $(dirname $0)
+PIDFILE=/var/run/honeywrt.pid
 
 PID=$(cat $PIDFILE 2>/dev/null)
 

@@ -10,27 +10,22 @@ if sys.platform == 'win32':
     # and this is when running as a service
     #os.chdir(os.path.dirname(inspect.getfile(inspect.currentframe())))
 
-#from twisted.internet import reactor, defer
-from twisted.application import internet, service
-
 if not os.path.exists('honeywrt.cfg'):
     print 'ERROR: honeywrt.cfg is missing!'
     sys.exit(1)
 
-from honeywrt.core import honeypot
-from honeywrt.core.config import config
+if os.name == 'posix' and os.getuid() == 0:
+	print ''
 
-#factory = honeypot.HoneyPotSSHFactory()
-#factory.portal = portal.Portal(honeypot.HoneyPotRealm())
+# Unsure how to handle these
+#from twisted.internet import reactor, defer
+#from twisted.application import internet, service
+#from honeywrt.core import honeypot
+#from honeywrt.core.config import config
+#import honeywrt.core.honeypot
+#from honeywrt import core
 
-cfg = config()
-
-#application = service.Application('honeypot')
-#for i in ssh_addr.split():
-#    service = internet.TCPServer(
-#        int(cfg.get('honeypot', 'ssh_port')), factory,
-#        interface=i)
-#    service.setServiceParent(application)
+application = service.Application("honeywrt")
 
 #if cfg.has_option('honeypot', 'interact_enabled') and \
 #        cfg.get('honeypot', 'interact_enabled').lower() in \
